@@ -64,16 +64,8 @@ class App extends Component {
     const tasks = [...this.state.tasks];
     if(this.state.editTaskID === null) //adding a task
     {
-      const newTask = {title: title, description: description}
-      axios({
-        method: 'post',
-        url: this.url+'/tasks',
-        data: newTask,
-        validateStatus: (status) => {
-          return true; // I'm always returning true, you may want to do it depending on the status received
-        },
-      })
-      .then(res => {
+      let newTask = JSON.stringify({title: title, description: description});
+      axios.post(this.url+'/tasks',newTask,{headers:{"Content-Type" : "application/json"}}).then(res => {
         tasks.push(res.data)
         this.setState({showDialog: false, editTaskID:null, tasks:tasks})
       });
