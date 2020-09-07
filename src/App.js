@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import './App.css';
 import Task from './Task/Task';
@@ -72,15 +76,22 @@ class App extends Component {
     }
     else
     {
-      const taskIndex = this.state.tasks.findIndex(task => {
-        return task.id === this.state.editTaskID;
-      });
-      const task = {...this.state.tasks[taskIndex]};
-      task.title = title;
-      task.description = description;
-      tasks[taskIndex] = task;
-      this.setState({showDialog: false, editTaskID:null, tasks:tasks});
+      let newTask = JSON.stringify({title: title, description: description});
+      axios.patch(this.url+'/task/'+this.state.editTaskID, newTask,{headers:{"Content-Type" : "application/json"}}).then(res => {
+        const taskIndex = this.state.tasks.findIndex(task => {
+          return task.id === this.state.editTaskID;
+        });
+        const task = {...this.state.tasks[taskIndex]};
+        task.title = res.data.title;
+        task.description = res.data.description;
+        tasks[taskIndex] = task;
+        this.setState({showDialog: false, editTaskID:null, tasks:tasks});
+      })
     }
+  }
+
+  searchHandler = (event) => {
+
   }
 
   render()
@@ -95,6 +106,31 @@ class App extends Component {
         <Button variant="contained" color="primary" onClick = {this.addTaskHandler}>
           Add Task
         </Button>
+
+        {/* <Card variant="outlined">
+          <CardContent>
+            Search by:
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Title"
+              defaultValue = {this.state.title}
+              onChange = {(event) => this.searchHandler(event)}
+              fullWidth
+            />
+            <TextField
+                autoFocus
+                margin="dense"
+                label="Description"
+                defaultValue = {this.state.description}
+                onChange = {(event) => this.searchHandler(event)}
+                fullWidth
+            />
+          </CardContent>
+          <CardActions>
+            <Button variant="contained" color="primary">Search</Button>
+          </CardActions>
+        </Card> */}
         { this.state.showTasks ?
         <div>
           {this.state.tasks.map((task,index) => {
@@ -108,6 +144,7 @@ class App extends Component {
           })}
         </div>  : null
         }
+        
         <TaskDialog 
         ref={this.taskDialogElem}
         showDialog = {this.state.showDialog} 

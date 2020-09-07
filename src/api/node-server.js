@@ -53,7 +53,7 @@ app.get('/tasks/searchDescription', (req, res) => {
 app.post('/tasks', (req, res) => {
     console.log("start",req.body)
     const newTask = req.body
-    // if (!newTask.title || !newTask.description) return res.status(400).send('Missing data')
+    if (!newTask.title || !newTask.description) return res.status(400).send('Missing data')
     tasks.push({
         id: tasks.length + 1,
         title: newTask.title,
@@ -68,6 +68,15 @@ app.patch('/task/:id', (req, res) => {
   if (id > tasks.length) return res.status(400).send('Task not found!')
   _.assign(tasks[id - 1], _.pick(req.body, ['title', 'description']))
   res.send(tasks[id - 1])
+})
+
+app.delete('/task/:id', (req, res) => {
+  const id = req.params.id
+  if (id > tasks.length) return res.status(400).send('Task not found!')
+  const taskIndex = tasks.findIndex(task => {
+    return task.id === id;
+  });
+  res.send(tasks.splice(index, 1));
 })
 
 app.listen(5000, () => {
